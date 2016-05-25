@@ -105,10 +105,20 @@ def product_description(productId):
 
 #-----------------------------------------------------------------
 
-#@app.route('/products', methods = [POST])
-#def post_product():
-  
+@app.route('/products', methods = ['POST'])
+def post_product():
+  conn, cur = db_init();
+  req = request.get_json();
+  cur.execute("INSERT INTO Product (name,price,description) VALUES (%(name)s,%(price)s,%(description)s)", {
+    "name" : req['name'], 
+    "description" : req['description'],
+    "price" : req['price']
+  })
+  conn.commit()
+  conn.close()
 
+  return "OK"
+  
 #-----------------------------------------------------------------
 
 if __name__ == "__main__":
