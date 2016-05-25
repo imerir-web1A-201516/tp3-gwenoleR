@@ -32,11 +32,12 @@ def db_createTables(conn, cur):
     CREATE TABLE Product (
       pid SERIAL,
       name varchar,
-      price float
+      price float,
+      description varchar
     );
-    INSERT INTO Product (name, price) VALUES ('Pomme', 1.20);
-    INSERT INTO Product (name, price) VALUES ('Poire', 1.60);
-    INSERT INTO Product (name, price) VALUES ('Fraise', 3.80);
+    INSERT INTO Product (name, price) VALUES ('Pomme', 1.20, 'Fruit rond vert, rouge, jaune...');
+    INSERT INTO Product (name, price) VALUES ('Poire', 1.60, 'Fruit cool');
+    INSERT INTO Product (name, price) VALUES ('Fraise', 3.80, 'Fruit rouge sucre');
     ''')
   conn.commit()
 
