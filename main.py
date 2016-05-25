@@ -91,11 +91,11 @@ def products_fetchall():
 #-----------------------------------------------------------------
 
 @app.route('/products/<int:productId>')
-def product_description(pid):
+def product_description(productId):
   conn, cur = db_init()
   result = db_select(cur, 'SELECT * FROM Product WHERE pid=%(pid)s', {
-  "pid": pid
-})
+    "pid": pid
+  })
   conn.close()
   
   resp = make_response(json.dumps(result))
@@ -104,7 +104,9 @@ def product_description(pid):
 
 #-----------------------------------------------------------------
 
-
+#@app.route('/products', methods = [POST])
+#def post_product():
+  
 
 #-----------------------------------------------------------------
 
