@@ -94,7 +94,7 @@ def products_fetchall():
 def product_description(productId):
   conn, cur = db_init()
   result = db_select(cur, 'SELECT * FROM Product WHERE pid=%(pid)s', {
-    "pid": pid
+    "pid": productId
   })
   conn.close()
   
