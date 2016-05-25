@@ -93,12 +93,18 @@ def products_fetchall():
 @app.route('/products/<int:productId>')
 def product_description(pid):
   conn, cur = db_init()
-  result = db_select(cur, 'SELECT * FROM Product WHERE pid=%d' % pid)
+  result = db_select(cur, 'SELECT * FROM Product WHERE pid=%(pid)s', {
+  "pid": pid
+})
   conn.close()
-
+  
   resp = make_response(json.dumps(result))
   resp.mimetype = 'application/json'
   return resp
+
+#-----------------------------------------------------------------
+
+
 
 #-----------------------------------------------------------------
 
