@@ -29,15 +29,30 @@ def db_createTables(conn, cur):
 
   cur.execute('''\
     DROP TABLE IF EXISTS Product;
+    DROP TABLE IF EXISTS Basket;
+    DROP TABLE IF EXISTS Utilisateur;
     CREATE TABLE Product (
       pid SERIAL,
       name varchar,
       price float,
       description varchar
     );
+    CREATE TABLE Basket (
+      bid SERIAL,
+      uuid varchar,
+      product_ref varchar,
+      product_qt int
+    );
+    CREATE TABLE Utilisateur (
+      uid SERIAL,
+      name varchar,
+      pass varchar
+    );
     INSERT INTO Product (name, price, description) VALUES ('Pomme', 1.20, 'Fruit rond vert, rouge, jaune...');
     INSERT INTO Product (name, price, description) VALUES ('Poire', 1.60, 'Fruit cool');
     INSERT INTO Product (name, price, description) VALUES ('Fraise', 3.80, 'Fruit rouge sucre');
+    INSERT INTO Basket  (uuid, product_ref, product_qt) VALUES ('1234-1234-1234', '55lk32', 5);
+    INSERT INTO Utilisateur (name, pass) VALUES ('admin','admin');
     ''')
   conn.commit()
 
@@ -119,6 +134,24 @@ def post_product():
 
   return "OK"
   
+#-----------------------------------------------------------------
+
+@app.route('/baskets')
+def basket_fetchall():
+  conn, cur = db_init()
+  result = db_select(cur, 'SELECT * FROM Basket')
+  conn.close()
+
+  resp = make_response(json.dumps(result))
+  resp.mimetype = 'application/json'
+  return resp
+
+#-----------------------------------------------------------------
+
+#@app.route('/baskets/<basketUuid>', methods = ['POST'])
+#def basket_fetchOne(basketUuid):
+  
+
 #-----------------------------------------------------------------
 
 if __name__ == "__main__":
