@@ -35,9 +35,9 @@ def db_createTables(conn, cur):
       price float,
       description varchar
     );
-    INSERT INTO Product (name, price, description) VALUES ('Pomme', 1.20, "Fruit rond vert, rouge, jaune...");
-    INSERT INTO Product (name, price, description) VALUES ('Poire', 1.60, "Fruit cool");
-    INSERT INTO Product (name, price, description) VALUES ('Fraise', 3.80, "Fruit rouge sucre");
+    INSERT INTO Product (name, price, description) VALUES ('Pomme', 1.20, 'Fruit rond vert, rouge, jaune...');
+    INSERT INTO Product (name, price, description) VALUES ('Poire', 1.60, 'Fruit cool');
+    INSERT INTO Product (name, price, description) VALUES ('Fraise', 3.80, 'Fruit rouge sucre');
     ''')
   conn.commit()
 
