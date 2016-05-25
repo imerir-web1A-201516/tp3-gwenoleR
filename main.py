@@ -9,10 +9,10 @@ app = Flask(__name__)
 def db_init():
     """Cette fonction crée la connexion à la base de données et renvoie,
        l'objet de connexion et un curseur."""
-    
+
     urlparse.uses_netloc.append("postgres")
     url = urlparse.urlparse(os.environ["DATABASE_URL"])
-    
+
     conn = psycopg2.connect(
         database=url.path[1:],
         user=url.username,
@@ -22,13 +22,13 @@ def db_init():
     )
     cur = conn.cursor()    
     return conn, cur
-      
-def db_createTables(cur):
+
+def db_createTables(conn, cur):
   """Cette fonction initialise la base de données. Elle est invoquée par
      un chemin spécial - voir /debug/db/reset"""
-  
+
   cur.execute('''\
-    DROP TABLE Product;
+    DROP TABLE IF EXISTS Product;
     CREATE TABLE Product (
       pid SERIAL,
       name varchar,
@@ -38,17 +38,18 @@ def db_createTables(cur):
     INSERT INTO Product (name, price) VALUES ('Poire', 1.60);
     INSERT INTO Product (name, price) VALUES ('Fraise', 3.80);
     ''')
+  conn.commit()
 
 def db_select(cur, sql, params = None):
   """Cette fonction exécute une requête SQL de type SELECT
      et renvoie le résultat avec pour chaque ligne un dictionnaire
      liant les noms de colonnes aux données."""
-  
+
   if params:
     cur.execute(sql, params)
   else:
     cur.execute(sql)
-  
+
   rows = cur.fetchall()
   cleanRows = []
   if rows != None:
@@ -58,7 +59,7 @@ def db_select(cur, sql, params = None):
       for (i,colName) in enumerate(columns):
         cleanRow[colName] = row[i]
       cleanRows.append(cleanRow)
-  
+
   return cleanRows
 
 ##################################################################
@@ -66,9 +67,9 @@ def db_select(cur, sql, params = None):
 @app.route('/debug/db/reset')
 def route_dbinit():
   """Cette route sert à initialiser (ou nettoyer) la base de données."""
-  
+
   conn, cur = db_init()
-  db_createTables(cur)
+  db_createTables(conn, cur)
   conn.close()
   return "Done."
 
@@ -78,11 +79,11 @@ def route_dbinit():
 def products_fetchall():
   """Exemple d'une requête qui exécute une requête SQL et renvoie
      le résultat."""
-  
+
   conn, cur = db_init()
   result = db_select(cur, 'SELECT * FROM Product')
   conn.close()
-  
+
   resp = make_response(json.dumps(result))
   resp.mimetype = 'application/json'
   return resp
