@@ -3,6 +3,7 @@ from flask import Flask, request, make_response
 import json, os, psycopg2, urlparse
 
 app = Flask(__name__)
+app.debug = True
 
 ##################################################################
 
@@ -117,7 +118,7 @@ def product_description(productId):
   resp = make_response(json.dumps(result))
   resp.mimetype = 'application/json'
   return resp
-
+ 
 #-----------------------------------------------------------------
 
 @app.route('/products', methods = ['POST'])
@@ -133,7 +134,7 @@ def post_product():
   conn.close()
 
   return "OK"
-  
+
 #-----------------------------------------------------------------
 
 @app.route('/baskets')
@@ -148,9 +149,62 @@ def basket_fetchall():
 
 #-----------------------------------------------------------------
 
-#@app.route('/baskets/<basketUuid>', methods = ['POST'])
-#def basket_fetchOne(basketUuid):
+@app.route('/baskets/<basketUuid>', methods=['GET'])
+def basket_fetchOne(basketUuid):
+  conn, cur = db_init()
+  baskets = db_select(cur, 'SELECT * FROM Basket WHERE bid=%(bid)s',{
+    "bid" : basketUuid
+  })
+  conn.close()
   
+  resp = make_response(json.dumps(baskets), 200)
+  resp.mimetype = 'application/json'
+  return resp
+
+#-----------------------------------------------------------------
+
+@app.route('/baskets/<basketUuid>', methods = ['POST'])
+def basket_addItem(basketUuid):
+  name = request.authorization.username
+  passw = request.authorization.password
+  
+  conn, cur = db_init()
+  nameauth = db_select(cur, 'SELECT name FROM Utilisateur')
+  passauth = db_select(cur, 'SELECT pass FROM Utilisateur')
+  conn.close()
+    
+  if (name == nameauth[0]['name']) and (passw == passauth[0]['pass']):
+    auth = True
+  else :
+    auth = False
+  
+  if auth :
+    product_ref = request.args.get('product_ref','')
+    product_qt = request.args.get('product_qt', '')
+    
+    conn, cur = db_init()
+    cur.execute('UPDATE Basket SET product_ref = %(ref)s , product_qt = %(qt)s WHERE bid = %(uuid)s', {
+      'uuid' : basketUuid,
+      'ref' : product_ref,
+      'qt' : product_qt
+    })
+    conn.commit()
+  
+    resp = make_response(json.dumps(product_ref + ' : ' + product_qt))
+    resp.mimetype = 'application/json'
+  else :
+    return authenticate()
+
+  return resp
+ 
+ #-----------------------------------------------------------------
+ 
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return make_response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'}) 
 
 #-----------------------------------------------------------------
 
