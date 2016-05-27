@@ -123,8 +123,11 @@ def product_description(productId):
 
 @app.route('/products', methods = ['POST'])
 def post_product():
-  conn, cur = db_init();
-  req = request.get_json();
+  conn, cur = db_init()
+  
+  req = request.get_json()
+  print req
+  
   cur.execute("INSERT INTO Product (name,price,description) VALUES (%(name)s,%(price)s,%(description)s)", {
     "name" : req['name'], 
     "description" : req['description'],
@@ -133,7 +136,7 @@ def post_product():
   conn.commit()
   conn.close()
 
-  return "OK"
+  return  make_response(json.dumps('OK', 200))
 
 #-----------------------------------------------------------------
 
@@ -179,7 +182,7 @@ def basket_addItem(basketUuid):
     auth = False
   
   if auth :
-    product_ref = request.args.get('product_ref','')
+    product_ref = request.args.get('product_ref','')#or request.form['product_ref']
     product_qt = request.args.get('product_qt', '')
     
     conn, cur = db_init()
@@ -200,11 +203,11 @@ def basket_addItem(basketUuid):
  #-----------------------------------------------------------------
  
 def authenticate():
+    resp = make_response('Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401)
+    resp.headers['WWW-Authenticate']= 'Basic realm = "Credential required"'
     """Sends a 401 response that enables basic auth"""
-    return make_response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'}) 
+    return resp
 
 #-----------------------------------------------------------------
 
